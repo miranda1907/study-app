@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="IICS technical assessment">
+  <title>IICS Technical Assessment</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="eyebrow">TECHNICAL SKILLS ASSESSMENT</div>
+      <h1>Informatica Intelligent Cloud Services</h1>
+      <p>Candidate assessment · 12 versions · 20 questions per version</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="setup" class="panel">
+      <h2>Assessment details</h2>
+      <p class="muted">Your answers stay in this browser until you submit. On submission they are downloaded as .txt and .json files.</p>
+      <div class="setup-grid">
+        <label>Candidate name
+          <input id="candidateName" type="text" autocomplete="name" placeholder="Enter your name">
+        </label>
+        <label>Assessment version
+          <select id="versionSelect">
+            <optgroup label="Open-ended">
+              <option value="O1">Open-ended · Version 1</option><option value="O2">Open-ended · Version 2</option><option value="O3">Open-ended · Version 3</option><option value="O4">Open-ended · Version 4</option><option value="O5">Open-ended · Version 5</option><option value="O6">Open-ended · Version 6</option>
+            </optgroup>
+            <optgroup label="Multiple-choice">
+              <option value="M1">Multiple-choice · Version 1</option><option value="M2">Multiple-choice · Version 2</option><option value="M3">Multiple-choice · Version 3</option><option value="M4">Multiple-choice · Version 4</option><option value="M5">Multiple-choice · Version 5</option><option value="M6">Multiple-choice · Version 6</option>
+            </optgroup>
+          </select>
+        </label>
+      </div>
+      <div class="notice"><strong>Assessment format</strong><span>Six open-ended versions and six multiple-choice versions · 20 questions each</span><span>Difficulty levels are mixed throughout each version.</span></div>
+      <button id="startBtn" class="primary">Start assessment</button>
+    </section>
+
+    <section id="assessment" hidden>
+      <div class="assessment-top">
+        <div><span class="eyebrow" id="candidateLabel"></span><h2 id="partTitle">Questions</h2></div>
+        <div class="progress-wrap"><span id="progressText">Question 1 of 20</span><div class="progress"><span id="progressBar"></span></div></div>
+      </div>
+      <div id="questionList"></div>
+      <div class="actions">
+        <button id="backBtn" class="secondary" hidden>Previous question</button>
+        <button id="nextBtn" class="primary">Next question</button>
+      </div>
+    </section>
+
+    <section id="submitted" class="panel" hidden>
+      <div class="success-mark">✓</div>
+      <h2>Assessment completed</h2>
+      <p>Your .txt and .json files were downloaded. This site does not grade answers or contain an answer key.</p>
+      <div id="submissionSummary" class="notice"></div>
+      <div class="actions">
+        <button id="downloadTxtBtn" class="primary">Download .txt</button>
+        <button id="downloadJsonBtn" class="primary">Download .json</button>
+        <button id="printBtn" class="secondary">Print / save as PDF</button>
+      </div>
+      <p class="muted small">Keep the downloaded files in case you are asked for them.</p>
+    </section>
+    <footer>Candidate version · No answer keys or automatic grading included</footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
