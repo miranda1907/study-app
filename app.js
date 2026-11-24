@@ -2,13 +2,20 @@ const QUESTION_BANK = {"1":[{"level":"Beginner","topic":"IICS platform and archi
 
 const $ = (id) => document.getElementById(id);
 const FORMAT_LABEL = { O: "Open-ended", M: "Multiple-choice" };
-let version = "O1", currentIndex = 0, candidate = "", responses = {}, latest = null;
+let version = "O1", currentIndex = 0, candidate = "", responses = {}, latest = null, stage = "setup";
+
+// Progress is kept in this browser (localStorage) until the candidate returns to the start page.
+const STORE_KEY = "iics-assessment-state";
+function persist(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({ stage, candidate, version, currentIndex, responses, latest })); }catch{}
+}
+function clearSaved(){ try{ localStorage.removeItem(STORE_KEY); }catch{} }
 
 const fmt = () => version[0];
 const num = () => version.slice(1);
 const vLabel = () => `${FORMAT_LABEL[fmt()]} · Version ${num()}`;
 const safe = (s) => s.replace(/[^a-z0-9_-]+/gi, "_");
-const scroll = () => window.scrollTo({ top: 0, behavior: "smooth" });
+const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
 function render(){
   const item = QUESTION_BANK[num()][currentIndex];
@@ -30,14 +37,14 @@ function render(){
   if(open){
     const area = document.createElement("textarea");
     area.placeholder = "Write your answer here…"; area.value = responses[key] || "";
-    area.addEventListener("input", () => responses[key] = area.value);
+    area.addEventListener("input", () => { responses[key] = area.value; persist(); });
     card.appendChild(area);
   } else {
     item.options.forEach((option, i) => {
       const label = document.createElement("label"); label.className = "choice";
       const radio = document.createElement("input");
       radio.type = "radio"; radio.name = "mcq"; radio.checked = responses[key] === i;
-      radio.addEventListener("change", () => responses[key] = i);
+      radio.addEventListener("change", () => { responses[key] = i; persist(); });
       const span = document.createElement("span");
       span.textContent = `${String.fromCharCode(65 + i)}. ${option}`;
       label.append(radio, span); card.appendChild(label);
@@ -47,17 +54,18 @@ function render(){
   $("backBtn").hidden = currentIndex === 0;
   $("backBtn").textContent = "Previous question";
   $("nextBtn").textContent = currentIndex === 19 ? "Submit assessment" : "Next question";
+  persist();
 }
 
 function begin(){
   candidate = $("candidateName").value.trim();
   if(!candidate){ alert("Please enter the candidate name."); $("candidateName").focus(); return; }
-  version = $("versionSelect").value; currentIndex = 0; responses = {};
+  version = $("versionSelect").value; currentIndex = 0; responses = {}; latest = null; stage = "assessment";
   $("setup").hidden = true; $("assessment").hidden = false; $("submitted").hidden = true;
-  render(); scroll();
+  render(); toTop();
 }
 function next(){
-  if(currentIndex < 19){ currentIndex++; render(); scroll(); return; }
+  if(currentIndex < 19){ currentIndex++; render(); toTop(); return; }
   submit();
 }
 
@@ -100,19 +108,42 @@ const baseName = () => `IICS_${fmt() === "O" ? "Open" : "MC"}_V${num()}_${safe(c
 const saveJson = () => save(baseName() + ".json", JSON.stringify(latest.json, null, 2), "application/json");
 const saveTxt = () => save(baseName() + ".txt", latest.txt, "text/plain");
 
-function submit(){
-  latest = { json: buildSubmission() }; latest.txt = toText(latest.json);
-  $("assessment").hidden = true; $("submitted").hidden = false;
+function showSubmitted(){
+  $("setup").hidden = true; $("assessment").hidden = true; $("submitted").hidden = false;
   $("submissionSummary").replaceChildren();
   const b = document.createElement("strong"); b.textContent = candidate;
   const s = document.createElement("span"); s.textContent = `${vLabel()} · 20 responses included.`;
   $("submissionSummary").append(b, s);
-  saveJson(); saveTxt(); scroll();
+}
+function submit(){
+  latest = { json: buildSubmission() }; latest.txt = toText(latest.json);
+  stage = "submitted"; persist(); showSubmitted();
+  saveJson(); saveTxt(); toTop();
+}
+function restart(){
+  const msg = stage === "submitted"
+    ? "Go back to the start? Your downloaded files stay on your computer, but the answers saved here will be cleared."
+    : "Go back to the start? Your answers so far will be erased.";
+  if(!confirm(msg)) return;
+  clearSaved(); responses = {}; latest = null; currentIndex = 0; candidate = ""; stage = "setup";
+  $("candidateName").value = "";
+  $("assessment").hidden = true; $("submitted").hidden = true; $("setup").hidden = false; toTop();
+}
+function restore(){
+  let s; try{ s = JSON.parse(localStorage.getItem(STORE_KEY) || "null"); }catch{ s = null; }
+  if(!s || !QUESTION_BANK[String(s.version || "").slice(1)] || !["assessment", "submitted"].includes(s.stage)) return;
+  ({ candidate, version, responses, latest, stage } = s);
+  currentIndex = Math.min(Math.max(Number(s.currentIndex) || 0, 0), 19);
+  $("candidateName").value = candidate; $("versionSelect").value = version;
+  if(stage === "submitted" && latest) showSubmitted();
+  else { stage = "assessment"; $("setup").hidden = true; $("assessment").hidden = false; render(); }
 }
 
 $("startBtn").addEventListener("click", begin);
 $("nextBtn").addEventListener("click", next);
-$("backBtn").addEventListener("click", () => { currentIndex--; render(); scroll(); });
+$("backBtn").addEventListener("click", () => { currentIndex--; render(); toTop(); });
 $("downloadJsonBtn").addEventListener("click", saveJson);
 $("downloadTxtBtn").addEventListener("click", saveTxt);
 $("printBtn").addEventListener("click", () => window.print());
+document.querySelectorAll(".restart").forEach(b => b.addEventListener("click", restart));
+restore();
