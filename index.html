@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="IICS technical assessment">
   <title>IICS Technical Assessment</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
   <header class="site-header">
@@ -49,6 +49,7 @@
         <button id="backBtn" class="secondary" hidden>Previous question</button>
         <button id="nextBtn" class="primary">Next question</button>
       </div>
+      <p class="small"><button class="restart secondary">Back to start</button> <span class="muted">Your answers are saved automatically until you go back to the start.</span></p>
     </section>
 
     <section id="submitted" class="panel" hidden>
@@ -60,11 +61,12 @@
         <button id="downloadTxtBtn" class="primary">Download .txt</button>
         <button id="downloadJsonBtn" class="primary">Download .json</button>
         <button id="printBtn" class="secondary">Print / save as PDF</button>
+        <button class="restart secondary">Back to start</button>
       </div>
       <p class="muted small">Keep the downloaded files in case you are asked for them.</p>
     </section>
     <footer>Candidate version · No answer keys or automatic grading included</footer>
   </main>
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
