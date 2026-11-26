@@ -153,6 +153,30 @@ const vLabel = () => `${FORMAT_LABEL[fmt()]} · Version ${num()}`;
 const safe = (s) => s.replace(/[^a-z0-9_-]+/gi, "_");
 const toTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
+function isAnswered(i){
+  const v = responses[`${version}-${i}`];
+  return fmt() === "O" ? typeof v === "string" && v.trim() !== "" : v !== undefined;
+}
+function updateNav(){
+  const nav = $("qNav");
+  if(nav.children.length !== 20){
+    nav.replaceChildren();
+    for(let i = 0; i < 20; i++){
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = i + 1;
+      b.addEventListener("click", () => { currentIndex = i; render(); toTop(); });
+      nav.appendChild(b);
+    }
+  }
+  [...nav.children].forEach((b, i) => {
+    const done = isAnswered(i);
+    b.classList.toggle("current", i === currentIndex);
+    b.classList.toggle("answered", done);
+    b.setAttribute("aria-label", `Question ${i + 1}${done ? ", answered" : ", not answered"}`);
+    if(i === currentIndex) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+  });
+}
+
 function render(){
   const item = QUESTION_BANK[num()][currentIndex];
   const open = fmt() === "O";
@@ -173,14 +197,14 @@ function render(){
   if(open){
     const area = document.createElement("textarea");
     area.placeholder = "Write your answer here…"; area.value = responses[key] || "";
-    area.addEventListener("input", () => { responses[key] = area.value; persist(); });
+    area.addEventListener("input", () => { responses[key] = area.value; persist(); updateNav(); });
     card.appendChild(area);
   } else {
     item.options.forEach((option, i) => {
       const label = document.createElement("label"); label.className = "choice";
       const radio = document.createElement("input");
       radio.type = "radio"; radio.name = "mcq"; radio.checked = responses[key] === i;
-      radio.addEventListener("change", () => { responses[key] = i; persist(); });
+      radio.addEventListener("change", () => { responses[key] = i; persist(); updateNav(); });
       const span = document.createElement("span");
       span.textContent = `${String.fromCharCode(65 + i)}. ${option}`;
       label.append(radio, span); card.appendChild(label);
@@ -190,6 +214,7 @@ function render(){
   $("backBtn").hidden = currentIndex === 0;
   $("backBtn").textContent = "Previous question";
   $("nextBtn").textContent = currentIndex === 19 ? "Submit assessment" : "Next question";
+  updateNav();
   persist();
 }
 
