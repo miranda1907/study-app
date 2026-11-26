@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="IICS technical assessment">
   <title>IICS Technical Assessment</title>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <header class="site-header">
@@ -44,6 +44,8 @@
         <div><span class="eyebrow" id="candidateLabel"></span><h2 id="partTitle">Questions</h2></div>
         <div class="progress-wrap"><span id="progressText">Question 1 of 20</span><div class="progress"><span id="progressBar"></span></div></div>
       </div>
+      <div id="qNav" class="qnav" aria-label="Question navigation"></div>
+      <p class="small muted qnav-hint">Jump to any question. Dark blue is the current question; light blue is answered.</p>
       <div id="questionList"></div>
       <div class="actions">
         <button id="backBtn" class="secondary" hidden>Previous question</button>
@@ -66,6 +68,6 @@
     </section>
     <footer>Candidate version · No answer keys or automatic grading included</footer>
   </main>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
